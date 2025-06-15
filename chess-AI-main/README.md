@@ -11,6 +11,8 @@ When you hover on a piece, all the squares that the piece can legally move to ar
 
 The computer will then play it's move.
 
+It`s remade program
+
 # license 
 [![License](https://img.shields.io/badge/License-EPL%201.0-red.svg)](https://opensource.org/licenses/EPL-1.0)
 
