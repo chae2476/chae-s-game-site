@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>시간 컨셉 선택형 게임 모음</title>
+<style>
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Malgun Gothic', sans-serif;
+    background-color: #111;
+    color: #eee;
+    user-select: none;
+  }
+  #background-image {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    filter: brightness(0.4);
+  }
+  .container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 10px;
+    min-height: 400px;
+  }
+  #text-box {
+    white-space: pre-line;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    min-height: 150px;
+    margin-bottom: 20px;
+  }
+  #choices button {
+    display: block;
+    margin: 8px 0;
+    padding: 10px 15px;
+    font-size: 1rem;
+    background: #222;
+    border: 2px solid #555;
+    color: #eee;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 100%;
+    text-align: left;
+  }
+  #choices button:hover {
+    background: #444;
+  }
+  .main-hall {
+    max-width: 600px;
+    margin: 40px auto;
+    background: rgba(10,10,10,0.7);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+  .main-hall h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+    letter-spacing: 1.2px;
+  }
+  .story-select-btn {
+    background: #222;
+    border: 2px solid #666;
+    color: #eee;
+    padding: 15px 25px;
+    margin: 10px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+    width: 80%;
+    max-width: 300px;
+  }
+  .story-select-btn:hover {
+    background: #555;
+  }
+  #btn-main {
+    margin-top: 20px;
+    background: #a22;
+    border: none;
+    width: 100%;
+    font-size: 1.1rem;
+  }
+</style>
+</head>
+<body>
+
+<img id="background-image" src="images/11.png" alt="배경 이미지" />
+
+<!-- 메인 화면 -->
+<div class="main-hall">
+  <h1>🕰️ 시간 컨셉 선택형 게임 모음</h1>
+  <button class="story-select-btn" onclick="startGame('memory')">1. 기억의 틈</button>
+  <button class="story-select-btn" onclick="startGame('boy')">2. 루프 143: 잃어버린 소년</button>
+  <button class="story-select-btn" onclick="startGame('four44')">3. 444</button>
+  <button class="story-select-btn" onclick="startGame('observer')">4. 관찰자</button>
+  <button class="story-select-btn" onclick="startGame('basement')">5. 지하실 아래</button>
+</div>
+
+<!-- 게임 화면 -->
+<div id="game-container" class="container" style="display:none;">
+  <div id="text-box"></div>
+  <div id="choices"></div>
+  <button id="btn-main" onclick="goToMain()">← 메인으로 돌아가기</button>
+</div>
+
+<script>
+const stories = {
+  // ① 기억의 틈
+  memory: {
+    start: `당신은 텅 빈 방에서 눈을 뜬다.\n벽시계는 04:44에 멈춰 있고, 주변엔 창문, 거울, 낡은 책상, 잠긴 문이 있다.\n기억은 희미하고, 단 하나의 감각만이 선명하다. “무언가를 잃었다”는 것.`,
+    choices: [
+      { text: "거울을 본다", next: "mirrorA1" },
+      { text: "책상을 뒤진다", next: "deskB1" },
+      { text: "문을 연다", next: "doorC1" }
+    ]
+  },
+  mirrorA1: {
+    start: `거울 속의 나는 나를 따라하지 않는다. 대신 비웃듯 다른 움직임을 반복한다.\n그 모습이 점점 나보다 '진짜 같다'.`,
+    choices: [
+      { text: "거울에 손을 댄다", next: "mirrorA2" },
+      { text: "거울을 깨부순다", next: "deskB1" }
+    ]
+  },
+  mirrorA2: {
+    start: `손을 대자 거울 속 내가 현실로 나온다. 그와 나는 뒤바뀌고, 나는 거울 안에 갇힌다.\n바깥의 나는 이제 웃으며 문을 나선다.`,
+    choices: [
+      { text: "비명을 지른다", next: "end1" },
+      { text: "침착히 탈출 방법을 찾는다", next: "mirrorA3" }
+    ]
+  },
+  mirrorA3: {
+    start: `거울 속에 흐릿한 풍경이 보인다. 내가 아이에게 등을 돌린 장면이다.`,
+    choices: [
+      { text: "아이에게 다가간다", next: "end2" },
+      { text: "등을 돌린다", next: "mirrorA1" }
+    ]
+  },
+  deskB1: {
+    start: `서랍 속에는 누군가의 오래된 일기장이 있다.\n'나는 이번에도 기억을 못했겠지.' 같은 글귀가 보인다.`,
+    choices: [
+      { text: "모두 읽는다", next: "deskB2" },
+      { text: "불태운다", next: "end3" }
+    ]
+  },
+  deskB2: {
+    start: `일기 마지막 페이지에 사진이 있다. 내가 한 아이를 버리고 도망치는 모습이다.`,
+    choices: [
+      { text: "사진 속 장소를 찾는다", next: "doorC1" },
+      { text: "그대로 책상을 닫는다", next: "mirrorA1" }
+    ]
+  },
+  doorC1: {
+    start: `문 너머엔 긴 복도. 맨 끝에는 똑같은 당신이 서 있다.\n그는 당신을 보며 “아직도 여기 있어?”라고 묻는다.`,
+    choices: [
+      { text: "그에게 다가간다", next: "doorC2" },
+      { text: "반대로 도망친다", next: "end4" }
+    ]
+  },
+  doorC2: {
+    start: `그는 진짜 당신이 아니라, 루프를 반복한 '기억'의 집합체였다.\n그가 말한다. “이 방은 너의 죄로 만들어졌어.”`,
+    choices: [
+      { text: "그의 말에 따르겠다", next: "end5" },
+      { text: "믿지 않는다", next: "mirrorA1" }
+    ]
+  },
+
+  // ② 루프 143: 잃어버린 소년
+  boy: {
+    start: `한 아이의 목소리가 반복되는 루프.\n“넌 아직도 날 못 찾았구나.”\n아이를 찾지 못하면 당신은 이 루프에 영원히 갇히게 된다.`,
+    choices: [
+      { text: "소리 따라가기", next: "boyA1" },
+      { text: "일기장 읽기", next: "boyB1" },
+      { text: "유령 피하기", next: "boyC1" }
+    ]
+  },
+  boyA1: {
+    start: `어둠 속에서 들리는 아이의 목소리. 점점 가까워진다. 벽에 손자국이 남아 있다.`,
+    choices: [
+      { text: "손자국을 따라간다", next: "boyA2" },
+      { text: "무시한다", next: "boyC1" }
+    ]
+  },
+  boyA2: {
+    start: `좁은 복도를 따라가다 어린아이의 뒷모습을 발견한다.\n하지만 부르면 도망친다.`,
+    choices: [
+      { text: "뒤쫓는다", next: "boyA3" },
+      { text: "기다린다", next: "boyB1" }
+    ]
+  },
+  boyA3: {
+    start: `아이를 붙잡았다. 아이는 놀라며 비명을 지른다. 당신의 손에 피가 묻어 있다.`,
+    choices: [
+      { text: "도망친다", next: "end6" },
+      { text: "말을 건다", next: "end7" }
+    ]
+  },
+  boyB1: {
+    start: `아이의 일기장에는 반복되는 죽음과 "그 사람"에 대한 두려움이 적혀 있다.`,
+    choices: [
+      { text: "계속 읽는다", next: "boyB2" },
+      { text: "찢어버린다", next: "end8" }
+    ]
+  },
+  boyB2: {
+    start: `“날 버리지 마.” 아이의 글씨가 갑자기 커진다. 페이지가 검게 번지고 있다.`,
+    choices: [
+      { text: "다음 페이지를 펼친다", next: "end9" },
+      { text: "일기장을 닫는다", next: "boyC1" }
+    ]
+  },
+  boyC1: {
+    start: `아이의 실루엣이 점점 괴물처럼 변한다. 당신의 잘못된 선택이 아이를 망가뜨린 것처럼 보인다.`,
+    choices: [
+      { text: "무릎 꿇고 사과한다", next: "end10" },
+      { text: "달아난다", next: "boyA1" }
+    ]
+  },
+
+  // ③ 444
+  four44: {
+    start: `새벽 4:44.\n모든 루프는 그 시각에 시작되고, 죽음 혹은 재시작으로 끝난다.\n숫자 4는 죽음을 뜻하는가, 혹은 해방인가?`,
+    choices: [
+      { text: "스스로를 해친다", next: "four44A1" },
+      { text: "시계를 부순다", next: "four44B1" },
+      { text: "침묵", next: "four44C1" }
+    ]
+  },
+  four44A1: {
+    start: `손목을 긋자 시간이 멈추고, 공간은 흑백이 된다.\n시계는 멈추지 않고 4:45로 넘어가려 한다.`,
+    choices: [
+      { text: "피를 시계에 바른다", next: "end11" },
+      { text: "잠든다", next: "four44" }
+    ]
+  },
+  four44B1: {
+    start: `시계를 망치로 내리치자 내부에서 사람이 웃는 듯한 소리가 들린다.`,
+    choices: [
+      { text: "더 부순다", next: "four44B2" },
+      { text: "그만둔다", next: "four44C1" }
+    ]
+  },
+  four44B2: {
+    start: `시계 속에서 나온 붉은 눈동자. 그것은 당신을 기억하는 존재였다.`,
+    choices: [
+      { text: "손을 잡는다", next: "end12" },
+      { text: "도망친다", next: "end13" }
+    ]
+  },
+  four44C1: {
+    start: `아무 행동도 하지 않은 채, 창밖을 본다.\n점점 색이 사라지고, 당신도 ‘없어진다’.`,
+    choices: []
+  },
+
+  // ④ 관찰자
+  observer: {
+    start: `당신은 방 안의 존재를 ‘지켜보는’ 입장이 된다.\n직접 개입은 할 수 없고, 선택에 따라 루프가 바뀐다.\n그러나 반복될수록 당신의 정체가 드러난다.`,
+    choices: [
+      { text: "로그 분석", next: "observerA1" },
+      { text: "관찰 중단", next: "observerB1" },
+      { text: "현실로 나가려 한다", next: "observerC1" }
+    ]
+  },
+  observerA1: {
+    start: `모니터에 수백 개의 루프 기록이 있다. 그중 3개는 붉게 표시됨.`,
+    choices: [
+      { text: "붉은 로그 재생", next: "observerA2" },
+      { text: "삭제", next: "observerB1" }
+    ]
+  },
+  observerA2: {
+    start: `한 루프에선 아이가 거울을 깨고, 또 다른 루프에선 자해한 모습이 나온다.`,
+    choices: [
+      { text: "아이를 도와주려 한다", next: "end14" },
+      { text: "계속 관찰", next: "observerA1" }
+    ]
+  },
+  observerB1: {
+    start: `기기를 꺼도 모니터는 꺼지지 않는다. 당신의 눈에서 눈물이 흐른다.`,
+    choices: [
+      { text: "울음을 멈춘다", next: "end15" },
+      { text: "모니터를 깬다", next: "observerC1" }
+    ]
+  },
+  observerC1: {
+    start: `문이 열린다. 당신은 카메라를 내려놓고 문을 향해 걷는다.\n그러나 발 아래 시계가 울린다.`,
+    choices: [
+      { text: "멈춘다", next: "end16" },
+      { text: "무시한다", next: "end17" }
+    ]
+  },
+
+  // ⑤ 지하실 아래
+  basement: {
+    start: `방 바닥에 감춰진 문.\n그 아래에는 시간이 멈춘 또 다른 공간이 있다.\n매번 지하실로 내려가지만, 그 안에서 올라오는 자는 없다.`,
+    choices: [
+      { text: "계단을 내려간다", next: "baseA1" },
+      { text: "반대로 올라간다", next: "baseB1" },
+      { text: "벽에 귀를 댄다", next: "baseC1" }
+    ]
+  },
+  baseA1: {
+    start: `계단은 끝이 없다. 점점 중력 방향이 이상해진다.`,
+    choices: [
+      { text: "계속 내려간다", next: "baseA2" },
+      { text: "뒤돌아본다", next: "baseB1" }
+    ]
+  },
+  baseA2: {
+    start: `바닥엔 나무 인형이 쓰러져 있다. 머리에 숫자 '8'이 써 있다.`,
+    choices: [
+      { text: "인형을 든다", next: "end18" },
+      { text: "무시한다", next: "baseA1" }
+    ]
+  },
+  baseB1: {
+    start: `계단은 아예 사라졌다. 올라간다는 생각은 시간에 반하는 것처럼 아프다.`,
+    choices: [
+      { text: "기어오른다", next: "end19" },
+      { text: "포기한다", next: "baseC1" }
+    ]
+  },
+  baseC1: {
+    start: `벽 뒤에서 아이의 목소리가 들린다.\n“여기야… 여기 묻혔어…”`,
+    choices: [
+      { text: "벽을 깬다", next: "end20" },
+      { text: "귀를 뗀다", next: "baseA1" }
+    ]
+  },
+
+  // 엔딩들
+  end1: {
+    start: `[엔딩1] 거울 속 영혼\n손을 대자 거울 속 내가 현실로 나온다. 나는 거울 안에 갇히고,\n바깥의 나는 웃으며 문을 나선다. 영원히 갇힌 채로.`,
+  },
+  end2: {
+    start: `[엔딩2] 용서받지 못한 기억\n아이에게 다가가 기억을 회복하지만 자책하며 괴로워한다.`,
+  },
+  end3: {
+    start: `[엔딩3] 불태운 진실\n일기장을 불태우고 모든 기억을 봉인한다.\n그리고 다시 처음부터 시작한다.`,
+  },
+  end4: {
+    start: `[엔딩4] 회피\n도망쳐서 루프가 반복된다.\n진실을 외면한 대가이다.`,
+  },
+  end5: {
+    start: `[엔딩5] 자백\n기억의 집합체인 그와 대면해 죄를 인정하고 루프에서 벗어난다.`,
+  },
+  end6: {
+    start: `[엔딩6] 피의 기억\n아이를 실수로 해치고 깊은 죄책감에 시달린다.`,
+  },
+  end7: {
+    start: `[엔딩7] 대화의 시작\n아이와 눈맞춤으로 진실의 틈을 연다.`,
+  },
+  end8: {
+    start: `[엔딩8] 기억 소각\n일기장을 찢어 기억을 지운다.\n하지만 그 대가는 잊혀짐이다.`,
+  },
+  end9: {
+    start: `[엔딩9] 용서받은 죄\n아이에게 사과 받고 용서를 받으며 루프를 탈출한다.`,
+  },
+  end10: {
+    start: `[엔딩10] 유령화\n아이 괴물화, 영혼을 포식하는 유령이 된다.`,
+  },
+  end11: {
+    start: `[엔딩11] 시계의 피\n피를 시계에 바르며 루프를 끊어낸다.`,
+  },
+  end12: {
+    start: `[엔딩12] 대면\n시계 속 존재와 손을 잡고 새로운 운명을 맞는다.`,
+  },
+  end13: {
+    start: `[엔딩13] 망각자\n도망쳐 모든 기억과 존재가 사라진다.`,
+  },
+  end14: {
+    start: `[엔딩14] 개입 금지\n아이를 도우려다 루프가 붕괴되고 개입이 금지된다.`,
+  },
+  end15: {
+    start: `[엔딩15] 감정 회복\n울음을 멈추고 부모였던 기억을 되찾는다.`,
+  },
+  end16: {
+    start: `[엔딩16] 탈출자\n현실로 나가 자유를 얻는다.`,
+  },
+  end17: {
+    start: `[엔딩17] 감시체계 이관\n무시하며 새로운 관찰자가 된다.`,
+  },
+  end18: {
+    start: `[엔딩18] 나무 인형\n인형을 들고 기억과 화해한다.`,
+  },
+  end19: {
+    start: `[엔딩19] 무한 역류\n기어오르며 루프가 붕괴한다.`,
+  },
+  end20: {
+    start: `[엔딩20] 묻힌 목소리\n벽을 깨고 과거 죄와 대면한다.`,
+  }
+};
+
+const endingImages = {
+  end1: "12.png",
+  end2: "13.png",
+  end3: "14.png",
+  end4: "15.png",
+  end5: "16.png",
+  end6: "17.png",
+  end7: "18.png",
+  end8: "19.png",
+  end9: "20.png",
+  end10: "21.png",
+  end11: "22.png",
+  end12: "23.png",
+  end13: "24.png",
+  end14: "25.png",
+  end15: "26.png",
+  end16: "27.png",
+  end17: "28.png",
+  end18: "29.png",
+  end19: "30.png",
+  end20: "31.png"
+};
+
+let currentScene = null;
+let lastEnding = "11.png";  // 기본 배경
+
+const mainHallDiv = document.querySelector('.main-hall');
+const gameContainer = document.getElementById('game-container');
+const textBox = document.getElementById('text-box');
+const choicesDiv = document.getElementById('choices');
+const backgroundImage = document.getElementById('background-image');
+
+function startGame(storyKey) {
+  currentScene = storyKey;
+  mainHallDiv.style.display = "none";
+  gameContainer.style.display = "block";
+  lastEnding = "11.png"; // 메인 배경 유지용
+  backgroundImage.src = "images/11.png";
+  showScene(currentScene);
+}
+
+function showScene(sceneKey) {
+  if (!stories[sceneKey]) return;
+  currentScene = sceneKey;
+  clearChoices();
+
+  // 텍스트 초기화 및 출력
+  textBox.textContent = stories[sceneKey].start;
+
+  // 선택지가 없으면 엔딩일 확률 (혹은 네비게이션 끝)
+  const choices = stories[sceneKey].choices || [];
+
+  // 엔딩 이미지 적용
+  if (sceneKey.startsWith("end")) {
+    const img = endingImages[sceneKey];
+    if (img) {
+      backgroundImage.src = "images/" + img;
+      lastEnding = img; // 엔딩 이미지 유지
+    }
+  }
+
+  if (choices.length === 0) {
+    // 선택지 없으면 메인 돌아가기 버튼만 남김
+    choicesDiv.innerHTML = `<i>선택지가 없습니다. 메인으로 돌아가세요.</i>`;
+    return;
+  }
+
+  // 선택지 버튼 생성
+  for (const choice of choices) {
+    const btn = document.createElement("button");
+    btn.textContent = choice.text;
+    btn.onclick = () => {
+      showScene(choice.next);
+    };
+    choicesDiv.appendChild(btn);
+  }
+}
+
+function clearChoices() {
+  choicesDiv.innerHTML = "";
+}
+
+function goToMain() {
+  // 메인 화면으로 복귀
+  mainHallDiv.style.display = "block";
+  gameContainer.style.display = "none";
+  backgroundImage.src = "images/" + lastEnding;  // 엔딩 이미지 유지
+  textBox.textContent = "";
+  clearChoices();
+}
+
+</script>
+
+</body>
+</html>
