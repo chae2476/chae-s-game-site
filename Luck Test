@@ -1,1 +1,133 @@
+from flask import Flask, request
+app = Flask(__name__)
+
+poems = [
+    ("🍀", "행운은 오늘 너를 찾아온다\n햇살 속 너의 웃음처럼 밝게\n조용히 기다린 보상이\n네게로 다가온다, 가볍게."),
+    ("💖", "따뜻한 마음이 피어나는 날\n너의 이름은 사랑을 부른다\n작은 인연도 큰 기쁨이 되어\n오늘을 감싸안는다."),
+    ("⚠️", "조심스러운 선택이 필요한 하루\n말보다 마음을 들어봐\n가끔 멈추는 것이\n더 나은 길이 되기도 해."),
+    ("📚", "배움이 꽃피는 날이야\n궁금했던 것에 답이 보이고\n너의 지식이 자라는 순간\n자신감이 깃든다."),
+    ("🎁", "예상 못한 선물이 도착한다\n마음이 따뜻해지는 메시지나\n작은 기회 하나가\n네 하루를 바꾼다."),
+    ("💡", "아이디어가 샘솟는 날\n멈춰있던 퍼즐이 맞춰지고\n너의 생각이 빛을 낸다\n지금 떠오르는 걸 적어봐."),
+    ("🧘", "마음이 고요해지는 하루\n바람처럼 너도 가볍게 흘러\n무거웠던 생각을 놓고\n숨을 깊이 들이마셔봐."),
+    ("😴", "조용한 쉼이 필요한 날\n지친 너에게 포근한 시간이\n별빛처럼 다가온다\n지금은 충분히 쉬어도 돼."),
+    ("🌧️", "감정이 흔들릴 수 있어\n하지만 그건 흐림이 아니라\n다시 빛날 준비\n너의 마음도 그래."),
+    ("😎", "자신감 넘치는 너의 하루\n거울 속 미소가 말하잖아\n도전하기 좋은 타이밍\n오늘은 너의 무대야!")
+]
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    if request.method == "POST":
+        name = request.form["name"]
+        birth = request.form["birth"]
+        favnum = int(request.form["favnum"])
+
+        seed = len(name) + favnum + sum(int(x) for x in birth.replace("-", ""))
+        emoji, poem = poems[seed % len(poems)]
+
+        return f"""
+        <!DOCTYPE html>
+        <html lang="ko">
+        <head>
+          <meta charset="UTF-8">
+          <title>🌙 감성 운세 시</title>
+          <style>
+            body {{
+              font-family: 'Nanum Gothic', sans-serif;
+              text-align: center;
+              background-color: #f5f5f5;
+              padding: 50px;
+            }}
+            input, button {{
+              padding: 10px;
+              margin: 10px;
+              font-size: 18px;
+            }}
+            #poem-card {{
+              margin-top: 30px;
+              padding: 30px;
+              background-color: white;
+              border-radius: 20px;
+              width: 400px;
+              font-size: 20px;
+              white-space: pre-line;
+              margin-left: auto;
+              margin-right: auto;
+              box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }}
+            #downloadBtn {{
+              margin-top: 20px;
+              font-size: 16px;
+              padding: 10px 20px;
+              cursor: pointer;
+            }}
+          </style>
+        </head>
+        <body>
+          <h1>🔮 오늘의 감성 운세 시</h1>
+          <form method="POST">
+            <input type="text" name="name" placeholder="이름" required /><br />
+            <input type="date" name="birth" required /><br />
+            <input type="number" name="favnum" placeholder="좋아하는 숫자" required /><br />
+            <button type="submit">시 확인하기 ✨</button>
+          </form>
+
+          <div id="poem-card">
+            <p style="font-size: 32px;">{emoji}</p>
+            <p><strong>{name}</strong>님의 운세 시</p>
+            <p>{poem}</p>
+          </div>
+          <button id="downloadBtn">🖼️ 이미지로 저장</button>
+
+          <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+          <script>
+            const btn = document.getElementById("downloadBtn");
+            if (btn) {{
+              btn.addEventListener("click", () => {{
+                const card = document.getElementById("poem-card");
+                html2canvas(card).then(canvas => {{
+                  const link = document.createElement("a");
+                  link.download = "운세_시.png";
+                  link.href = canvas.toDataURL("image/png");
+                  link.click();
+                }});
+              }});
+            }}
+          </script>
+        </body>
+        </html>
+        """
+    return """
+    <!DOCTYPE html>
+    <html lang="ko">
+    <head>
+      <meta charset="UTF-8">
+      <title>🌙 감성 운세 시</title>
+      <style>
+        body {
+          font-family: 'Nanum Gothic', sans-serif;
+          text-align: center;
+          background-color: #f5f5f5;
+          padding: 50px;
+        }
+        input, button {
+          padding: 10px;
+          margin: 10px;
+          font-size: 18px;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>🔮 오늘의 감성 운세 시</h1>
+      <form method="POST">
+        <input type="text" name="name" placeholder="이름" required /><br />
+        <input type="date" name="birth" required /><br />
+        <input type="number" name="favnum" placeholder="좋아하는 숫자" required /><br />
+        <button type="submit">시 확인하기 ✨</button>
+      </form>
+    </body>
+    </html>
+    """
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
